@@ -7,3 +7,4 @@ tqdm
 python-dotenv
 faiss-cpu
 tiktoken
+tabulate
