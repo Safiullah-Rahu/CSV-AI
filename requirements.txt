@@ -1,0 +1,8 @@
+streamlit
+streamlit_chat
+langchain
+pandas
+openai
+tqdm
+python-dotenv
+faiss-cpu
