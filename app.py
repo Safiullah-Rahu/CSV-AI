@@ -117,11 +117,11 @@ def analyze(temperature, model_name):
     uploaded_file = st.sidebar.file_uploader("Upload your CSV here 👇:", type="csv")
     #.write(uploaded_file.name)
     if uploaded_file is not None:
-        # with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
-        #     tmp_file.write(uploaded_file.getvalue())
-        #     tmp_file_path = tmp_file.name
+        with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
+            tmp_file.write(uploaded_file.getvalue())
+            tmp_file_path = tmp_file.name
         #uploaded_file_content = BytesIO(uploaded_file.getvalue())
-        df = pd.read_csv(uploaded_file.name, encoding="cp1252")
+        df = pd.read_csv(tmp_file_path, encoding="cp1252")
 
         def agent_chat(query):
             old_stdout = sys.stdout
