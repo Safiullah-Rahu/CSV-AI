@@ -102,16 +102,16 @@ def summary(model_name, temperature, top_p, freq_penalty):
         # encoding = cp1252
         text_splitter = RecursiveCharacterTextSplitter(chunk_size = 500, chunk_overlap=0)
         try:
-            #loader = CSVLoader(file_path=tmp_file_path, encoding="cp1252")
-            loader = UnstructuredFileLoader(tmp_file_path)
+            loader = CSVLoader(file_path=tmp_file_path, encoding="cp1252")
+            #loader = UnstructuredFileLoader(tmp_file_path)
             data = loader.load()
             texts = text_splitter.split_documents(data)
 #             # Create an index using the loaded documents
 #             index_creator = VectorstoreIndexCreator()
 #             docsearch = index_creator.from_loaders([loader])
         except:
-            #loader = CSVLoader(file_path=tmp_file_path, encoding="utf-8")
-            loader = UnstructuredFileLoader(tmp_file_path)
+            loader = CSVLoader(file_path=tmp_file_path, encoding="utf-8")
+            #loader = UnstructuredFileLoader(tmp_file_path)
             data = loader.load()
             texts = text_splitter.split_documents(data)
 #             index_creator = VectorstoreIndexCreator()
@@ -124,7 +124,7 @@ def summary(model_name, temperature, top_p, freq_penalty):
             llm = OpenAI(model_name=model_name, temperature=temperature)
             chain = load_summarize_chain(llm, chain_type="map_reduce")
             #search = docsearch.similarity_search(" ")
-            summary = chain.run(input_documents=texts)#, question="Write a concise summary within 300 words.")
+            summary = chain.run(input_documents=texts[:10])#, question="Write a concise summary within 300 words.")
 
             st.success(summary)
 
