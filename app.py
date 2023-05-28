@@ -75,7 +75,7 @@ def chat(temperature, model_name):
         question_generator = LLMChain(llm=llm, prompt=CONDENSE_QUESTION_PROMPT,verbose=True)
         doc_chain = load_qa_chain(llm=llm, 
                                   
-                                  prompt=self.QA_PROMPT,
+                                  prompt=QA_PROMPT,
                                   verbose=True,
                                   chain_type= "stuff"
                                   )
