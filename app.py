@@ -17,6 +17,7 @@ from langchain.docstore.document import Document
 from langchain.vectorstores import FAISS
 from langchain.chat_models import ChatOpenAI
 from langchain.chains import ConversationalRetrievalChain
+from langchain.indexes import VectorstoreIndexCreator
 
 
 st.set_page_config(page_title="CSV AI", layout="wide")
@@ -100,31 +101,25 @@ def summary(model_name, temperature, top_p, freq_penalty):
         # encoding = cp1252
         text_splitter = CharacterTextSplitter()
         try:
-            # opening the CSV file
-            with open(tmp_file_path, mode ='r')as file:
-                # reading the CSV file
-                csvFile = csv.reader(file)
-            #loader = CSVLoader(file_path=tmp_file_path, encoding="cp1252")
+            loader = CSVLoader(file_path=tmp_file_path, encoding="cp1252")
             #data = loader.load()
-            texts = text_splitter.split_text(csvFile)
-            docs = [Document(page_content=t) for t in texts[:3]]
+            # Create an index using the loaded documents
+            index_creator = VectorstoreIndexCreator()
+            docsearch = index_creator.from_loaders([loader])
         except:
-            # opening the CSV file
-            with open(tmp_file_path, mode ='r')as file:
-                # reading the CSV file
-                csvFile = csv.reader(file)
-            #loader = CSVLoader(file_path=tmp_file_path, encoding="utf-8")
+            loader = CSVLoader(file_path=tmp_file_path, encoding="utf-8")
             #data = loader.load()
-            texts = text_splitter.split_text(csvFile)
-            docs = [Document(page_content=t) for t in texts[:3]]
+            index_creator = VectorstoreIndexCreator()
+            docsearch = index_creator.from_loaders([loader])
 
         os.remove(tmp_file_path)
         gen_sum = st.button("Generate Summary")
         if gen_sum:
             # Initialize the OpenAI module, load and run the summarize chain
             llm = OpenAI(model_name=model_name, temperature=temperature)
-            chain = load_summarize_chain(llm, chain_type="map_reduce")
-            summary = chain.run(input_documents=docs)
+            chain = load_summarize_chain(llm, chain_type="stuff")
+            search = docsearch.similarity_search(" ")
+            summary = chain.run(input_documents=search, question="Write a concise summary within 300 words.")
 
             st.success(summary)
 
