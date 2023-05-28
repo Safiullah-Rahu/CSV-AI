@@ -9,3 +9,4 @@ faiss-cpu
 tiktoken
 tabulate
 unstructured
+pdf2image
