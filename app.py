@@ -111,16 +111,11 @@ def summary(model_name, temperature, top_p, freq_penalty):
             #loader = UnstructuredFileLoader(tmp_file_path)
             data = loader.load()
             texts = text_splitter.split_documents(data)
-#             # Create an index using the loaded documents
-#             index_creator = VectorstoreIndexCreator()
-#             docsearch = index_creator.from_loaders([loader])
         except:
             loader = CSVLoader(file_path=tmp_file_path, encoding="utf-8")
             #loader = UnstructuredFileLoader(tmp_file_path)
             data = loader.load()
             texts = text_splitter.split_documents(data)
-#             index_creator = VectorstoreIndexCreator()
-#             docsearch = index_creator.from_loaders([loader])
 
         os.remove(tmp_file_path)
         gen_sum = st.button("Generate Summary")
@@ -129,7 +124,7 @@ def summary(model_name, temperature, top_p, freq_penalty):
             llm = OpenAI(model_name=model_name, temperature=temperature)
             chain = load_summarize_chain(llm, chain_type="stuff")
             #search = docsearch.similarity_search(" ")
-            summary = chain.run(input_documents=texts[:50])#, question="Write a concise summary within 300 words.")
+            summary = chain.run(input_documents=texts[:50])
 
             st.success(summary)
 
@@ -145,8 +140,7 @@ def analyze(temperature, model_name):
         with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
             tmp_file.write(uploaded_file.getvalue())
             tmp_file_path = tmp_file.name
-        #uploaded_file_content = BytesIO(uploaded_file.getvalue())
-        df = pd.read_csv(tmp_file_path)#, encoding="cp1252")
+        df = pd.read_csv(tmp_file_path)
 
         def agent_chat(query):
 
@@ -156,12 +150,8 @@ def analyze(temperature, model_name):
                 result = agent.run(query)
             except:
                 result = "Try asking quantitative questions about structure of csv data!"
-            #result = chain({"question": query, "chat_history": st.session_state['history']})
-            #st.session_state['history'].append((query, result["answer"]))
             return result
-    
-        # if 'history' not in st.session_state:
-        #     st.session_state['history'] = []
+   
 
         if 'generated' not in st.session_state:
             st.session_state['generated'] = ["Hello ! Ask me anything about Document 🤗"]
@@ -198,8 +188,6 @@ def analyze(temperature, model_name):
 
 # Main App
 def main():
-    # st.write("# 🧠 CSV AI ")
-    # st.write("⚡️ Interacting, Analyzing and Summarizing CSV Files!")
     st.markdown(
         """
         <div style='text-align: center;'>
@@ -216,7 +204,7 @@ def main():
         """,
         unsafe_allow_html=True,
     )
-    # st.header('😃 Greetings!')
+
 
     if os.path.exists(".env") and os.environ.get("OPENAI_API_KEY") is not None:
         user_api_key = os.environ["OPENAI_API_KEY"]
@@ -231,8 +219,7 @@ def main():
     os.environ["OPENAI_API_KEY"] = user_api_key
 
     
-    # if user_api_key:
-    #     sidebar()
+
     # Execute the home page function
     MODEL_OPTIONS = ["gpt-3.5-turbo", "gpt-4", "gpt-4-32k"]
     max_tokens = {"gpt-4":7000, "gpt-4-32k":31000, "gpt-3.5-turbo":3000}
