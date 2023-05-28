@@ -99,18 +99,20 @@ def summary(model_name, temperature, top_p, freq_penalty):
             tmp_file.write(uploaded_file.getvalue())
             tmp_file_path = tmp_file.name
         # encoding = cp1252
-        text_splitter = CharacterTextSplitter()
+        text_splitter = RecursiveCharacterTextSplitter()
         try:
             loader = CSVLoader(file_path=tmp_file_path, encoding="cp1252")
-            #data = loader.load()
-            # Create an index using the loaded documents
-            index_creator = VectorstoreIndexCreator()
-            docsearch = index_creator.from_loaders([loader])
+            data = loader.load()[0]
+            texts = text_splitter.split_documents(data)
+#             # Create an index using the loaded documents
+#             index_creator = VectorstoreIndexCreator()
+#             docsearch = index_creator.from_loaders([loader])
         except:
             loader = CSVLoader(file_path=tmp_file_path, encoding="utf-8")
-            #data = loader.load()
-            index_creator = VectorstoreIndexCreator()
-            docsearch = index_creator.from_loaders([loader])
+            data = loader.load()[0]
+            texts = text_splitter.split_documents(data)
+#             index_creator = VectorstoreIndexCreator()
+#             docsearch = index_creator.from_loaders([loader])
 
         os.remove(tmp_file_path)
         gen_sum = st.button("Generate Summary")
@@ -118,8 +120,8 @@ def summary(model_name, temperature, top_p, freq_penalty):
             # Initialize the OpenAI module, load and run the summarize chain
             llm = OpenAI(model_name=model_name, temperature=temperature)
             chain = load_summarize_chain(llm, chain_type="stuff")
-            search = docsearch.similarity_search(" ")
-            summary = chain.run(input_documents=search, question="Write a concise summary within 300 words.")
+            #search = docsearch.similarity_search(" ")
+            summary = chain.run(input_documents=texts)#, question="Write a concise summary within 300 words.")
 
             st.success(summary)
 
