@@ -95,7 +95,7 @@ def summary(model_name, temperature, top_p, freq_penalty):
             tmp_file.write(uploaded_file.getvalue())
             tmp_file_path = tmp_file.name
         # encoding = cp1252
-        loader = CSVLoader(file_path=tmp_file_path)
+        loader = CSVLoader(file_path=tmp_file_path, encoding="cp1252")
         data = loader.load()
 
         os.remove(tmp_file_path)
