@@ -8,3 +8,4 @@ python-dotenv
 faiss-cpu
 tiktoken
 tabulate
+unstructured
