@@ -103,7 +103,7 @@ def summary(model_name, temperature, top_p, freq_penalty):
         if gen_sum:
             # Initialize the OpenAI module, load and run the summarize chain
             llm = ChatOpenAI(model_name=model_name, temperature=temperature, top_p=top_p, frequency_penalty=freq_penalty)
-            chain = load_summarize_chain(llm, chain_type="stuff")
+            chain = load_summarize_chain(llm, chain_type="map_reduce")
             summary = chain.run(input_documents=data)
 
             st.success(summary)
