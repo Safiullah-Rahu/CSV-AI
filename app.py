@@ -4,13 +4,11 @@ import os, tempfile, sys
 from io import BytesIO
 from io import StringIO
 import pandas as pd
-import csv
 from langchain.agents import create_pandas_dataframe_agent
 from langchain.llms.openai import OpenAI
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.chains.summarize import load_summarize_chain
 from langchain.document_loaders.csv_loader import CSVLoader
-from langchain.document_loaders import UnstructuredFileLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.chains.mapreduce import MapReduceChain
@@ -18,7 +16,6 @@ from langchain.docstore.document import Document
 from langchain.vectorstores import FAISS
 from langchain.chat_models import ChatOpenAI
 from langchain.chains import ConversationalRetrievalChain
-from langchain.indexes import VectorstoreIndexCreator
 
 
 st.set_page_config(page_title="CSV AI", layout="wide")
@@ -124,7 +121,7 @@ def summary(model_name, temperature, top_p, freq_penalty):
             llm = OpenAI(model_name=model_name, temperature=temperature)
             chain = load_summarize_chain(llm, chain_type="stuff")
             #search = docsearch.similarity_search(" ")
-            summary = chain.run(input_documents=texts[:10])#, question="Write a concise summary within 300 words.")
+            summary = chain.run(input_documents=texts[:50])#, question="Write a concise summary within 300 words.")
 
             st.success(summary)
 
