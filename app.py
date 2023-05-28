@@ -121,7 +121,7 @@ def analyze(temperature, model_name):
             tmp_file.write(uploaded_file.getvalue())
             tmp_file_path = tmp_file.name
         #uploaded_file_content = BytesIO(uploaded_file.getvalue())
-        df = pd.read_csv(tmp_file_path, encoding="cp1252")
+        df = pd.read_csv(tmp_file_path)#, encoding="cp1252")
 
         def agent_chat(query):
             old_stdout = sys.stdout
