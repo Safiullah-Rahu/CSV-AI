@@ -16,6 +16,10 @@ from langchain.docstore.document import Document
 from langchain.vectorstores import FAISS
 from langchain.chat_models import ChatOpenAI
 from langchain.chains import ConversationalRetrievalChain
+from langchain.memory import ConversationBufferMemory
+from langchain.chains.conversational_retrieval.prompts import CONDENSE_QUESTION_PROMPT
+from langchain.chains.question_answering import load_qa_chain
+from langchain.prompts.prompt import PromptTemplate
 
 
 st.set_page_config(page_title="CSV AI", layout="wide")
