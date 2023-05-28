@@ -54,11 +54,11 @@ def chat(temperature, model_name):
         if 'history' not in st.session_state:
             st.session_state['history'] = []
 
-        if 'generated' not in st.session_state:
-            st.session_state['generated'] = ["Hello ! Ask me anything about " + uploaded_file.name + " 🤗"]
+        if 'generatedd' not in st.session_state:
+            st.session_state['generatedd'] = ["Hello ! Ask me anything about " + uploaded_file.name + " 🤗"]
 
-        if 'past' not in st.session_state:
-            st.session_state['past'] = ["Hey ! 👋"]
+        if 'pastt' not in st.session_state:
+            st.session_state['pastt'] = ["Hey ! 👋"]
             
         #container for the chat history
         response_container = st.container()
@@ -74,17 +74,17 @@ def chat(temperature, model_name):
             if submit_button and user_input:
                 output = conversational_chat(user_input)
                 
-                st.session_state['past'].append(user_input)
-                st.session_state['generated'].append(output)
+                st.session_state['pastt'].append(user_input)
+                st.session_state['generatedd'].append(output)
 
-        if st.session_state['generated']:
+        if st.session_state['generatedd']:
             with response_container:
-                for i in range(len(st.session_state['generated'])):
-                    message(st.session_state["past"][i], is_user=True, key=str(i) + '_user', avatar_style="big-smile")
-                    message(st.session_state["generated"][i], key=str(i), avatar_style="thumbs")
+                for i in range(len(st.session_state['generatedd'])):
+                    message(st.session_state["pastt"][i], is_user=True, key=str(i) + '_user', avatar_style="big-smile")
+                    message(st.session_state["generatedd"][i], key=str(i), avatar_style="thumbs")
         if reset:
-            st.session_state["past"] = []
-            st.session_state["generated"] = []
+            st.session_state["pastt"] = []
+            st.session_state["generatedd"] = []
 
 def summary(model_name, temperature, top_p, freq_penalty):
     st.write("# Summary of CSV")
