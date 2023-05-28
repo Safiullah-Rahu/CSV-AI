@@ -10,6 +10,8 @@ from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.chains.summarize import load_summarize_chain
 from langchain.document_loaders.csv_loader import CSVLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.text_splitter import CharacterTextSplitter
+from langchain.chains.mapreduce import MapReduceChain
 from langchain.docstore.document import Document
 from langchain.vectorstores import FAISS
 from langchain.chat_models import ChatOpenAI
@@ -95,12 +97,17 @@ def summary(model_name, temperature, top_p, freq_penalty):
             tmp_file.write(uploaded_file.getvalue())
             tmp_file_path = tmp_file.name
         # encoding = cp1252
+        text_splitter = CharacterTextSplitter()
         try:
             loader = CSVLoader(file_path=tmp_file_path, encoding="cp1252")
             data = loader.load()
+            texts = text_splitter.split_text(data)
+            docs = [Document(page_content=t) for t in texts[:3]]
         except:
             loader = CSVLoader(file_path=tmp_file_path, encoding="utf-8")
             data = loader.load()
+            texts = text_splitter.split_text(data)
+            docs = [Document(page_content=t) for t in texts[:3]]
 
         os.remove(tmp_file_path)
         gen_sum = st.button("Generate Summary")
@@ -108,7 +115,7 @@ def summary(model_name, temperature, top_p, freq_penalty):
             # Initialize the OpenAI module, load and run the summarize chain
             llm = OpenAI(model_name=model_name, temperature=temperature)
             chain = load_summarize_chain(llm, chain_type="map_reduce")
-            summary = chain.run(input_documents=data)
+            summary = chain.run(input_documents=docs)
 
             st.success(summary)
 
