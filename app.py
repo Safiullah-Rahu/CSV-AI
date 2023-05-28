@@ -102,14 +102,14 @@ def summary(model_name, temperature, top_p, freq_penalty):
         text_splitter = RecursiveCharacterTextSplitter()
         try:
             loader = CSVLoader(file_path=tmp_file_path, encoding="cp1252")
-            data = loader.load()[0]
+            data = loader.load()
             texts = text_splitter.split_documents(data)
 #             # Create an index using the loaded documents
 #             index_creator = VectorstoreIndexCreator()
 #             docsearch = index_creator.from_loaders([loader])
         except:
             loader = CSVLoader(file_path=tmp_file_path, encoding="utf-8")
-            data = loader.load()[0]
+            data = loader.load()
             texts = text_splitter.split_documents(data)
 #             index_creator = VectorstoreIndexCreator()
 #             docsearch = index_creator.from_loaders([loader])
