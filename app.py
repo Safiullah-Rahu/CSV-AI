@@ -37,14 +37,46 @@ def chat(temperature, model_name):
         with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
             tmp_file.write(uploaded_file.getvalue())
             tmp_file_path = tmp_file.name
-
-        loader = CSVLoader(file_path=tmp_file_path, encoding="utf-8")
-        data = loader.load()
+        try:
+            loader = CSVLoader(file_path=tmp_file_path, encoding="utf-8")
+            data = loader.load()
+        except:
+            loader = CSVLoader(file_path=tmp_file_path, encoding="cp1252")
+            data = loader.load()
 
         embeddings = OpenAIEmbeddings()
         vectors = FAISS.from_documents(data, embeddings)
+        
+        _template = """Given the following conversation and a follow-up question, rephrase the follow-up question to be a standalone question.
+                Chat History:
+                {chat_history}
+                Follow-up entry: {question}
+                Standalone question:"""
+        CONDENSE_QUESTION_PROMPT = PromptTemplate.from_template(_template)
 
-        chain = ConversationalRetrievalChain.from_llm(llm = ChatOpenAI(temperature=temperature, model_name=model_name), retriever=vectors.as_retriever())
+        qa_template = """You are a friendly conversational assistant, designed to answer questions and chat with the user from a contextual file.
+            You receive data from a user's files and a question, you must help the user find the information they need. 
+            Your answers must be user-friendly and respond to the user.
+            You will get questions and contextual information.
+
+            question: {question}
+            =========
+            context: {context}
+            ======="""
+        QA_PROMPT = PromptTemplate(template=qa_template, input_variables=["question", "context"])
+        llm = ChatOpenAI(model_name=model_name, temperature=temperature)
+        retriever=vectors.as_retriever()
+        memory = ConversationBufferMemory(memory_key="chat_history")
+        question_generator = LLMChain(llm=llm, prompt=CONDENSE_QUESTION_PROMPT,verbose=True)
+        doc_chain = load_qa_chain(llm=llm, 
+                                  
+                                  prompt=self.QA_PROMPT,
+                                  verbose=True,
+                                  chain_type= "stuff"
+                                  )
+        chain = ConversationalRetrievalChain(
+            retriever=retriever, combine_docs_chain=doc_chain, question_generator=question_generator, memory=memory, verbose=True)
+        #chain = ConversationalRetrievalChain.from_llm(llm = ChatOpenAI(temperature=temperature, model_name=model_name), retriever=vectors.as_retriever())
 
         def conversational_chat(query):
         
