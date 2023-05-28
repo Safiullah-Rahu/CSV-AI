@@ -52,35 +52,6 @@ def chat(temperature, model_name):
         embeddings = OpenAIEmbeddings()
         vectors = FAISS.from_documents(data, embeddings)
         
-#         _template = """Given the following conversation and a follow-up question, rephrase the follow-up question to be a standalone question.
-#                 Chat History:
-#                 {chat_history}
-#                 Follow-up entry: {question}
-#                 Standalone question:"""
-#         CONDENSE_QUESTION_PROMPT = PromptTemplate.from_template(_template)
-
-#         qa_template = """You are a friendly conversational assistant, designed to answer questions and chat with the user from a contextual file.
-#             You receive data from a user's files and a question, you must help the user find the information they need. 
-#             Your answers must be user-friendly and respond to the user.
-#             You will get questions and contextual information.
-
-#             question: {question}
-#             =========
-#             context: {context}
-#             ======="""
-#         QA_PROMPT = PromptTemplate(template=qa_template, input_variables=["question", "context"])
-#         llm = ChatOpenAI(model_name=model_name, temperature=temperature)
-#         retriever=vectors.as_retriever()
-#         memory = ConversationBufferMemory(memory_key="chat_history")
-#         question_generator = LLMChain(llm=llm, prompt=CONDENSE_QUESTION_PROMPT,verbose=True)
-#         doc_chain = load_qa_chain(llm=llm, 
-                                  
-#                                   prompt=QA_PROMPT,
-#                                   verbose=True,
-#                                   chain_type= "stuff"
-#                                   )
-#         chain = ConversationalRetrievalChain(
-#             retriever=retriever, combine_docs_chain=doc_chain, question_generator=question_generator, memory=memory, verbose=True)
         chain = ConversationalRetrievalChain.from_llm(llm = ChatOpenAI(temperature=temperature, model_name=model_name), retriever=vectors.as_retriever())
 
         def conversational_chat(query):
@@ -178,15 +149,15 @@ def analyze(temperature, model_name):
         df = pd.read_csv(tmp_file_path)#, encoding="cp1252")
 
         def agent_chat(query):
-            old_stdout = sys.stdout
-            sys.stdout = captured_output = StringIO()
 
             # Create and run the CSV agent with the user's query
-            agent = create_pandas_dataframe_agent(ChatOpenAI(temperature=temperature, model_name=model_name), df, verbose=True, max_iterations=4)
-            result = agent.run(query)
+            try:
+                agent = create_pandas_dataframe_agent(ChatOpenAI(temperature=temperature, model_name=model_name), df, verbose=True, max_iterations=4)
+                result = agent.run(query)
+            except:
+                result = "Try asking quantitative questions about structure of csv data!"
             #result = chain({"question": query, "chat_history": st.session_state['history']})
             #st.session_state['history'].append((query, result["answer"]))
-            sys.stdout = old_stdout
             return result
     
         # if 'history' not in st.session_state:
