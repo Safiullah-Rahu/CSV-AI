@@ -122,7 +122,7 @@ def summary(model_name, temperature, top_p, freq_penalty):
         if gen_sum:
             # Initialize the OpenAI module, load and run the summarize chain
             llm = OpenAI(model_name=model_name, temperature=temperature)
-            chain = load_summarize_chain(llm, chain_type="map_reduce")
+            chain = load_summarize_chain(llm, chain_type="stuff")
             #search = docsearch.similarity_search(" ")
             summary = chain.run(input_documents=texts[:10])#, question="Write a concise summary within 300 words.")
 
