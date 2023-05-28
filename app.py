@@ -4,6 +4,7 @@ import os, tempfile, sys
 from io import BytesIO
 from io import StringIO
 import pandas as pd
+import csv
 from langchain.agents import create_pandas_dataframe_agent
 from langchain.llms.openai import OpenAI
 from langchain.embeddings.openai import OpenAIEmbeddings
@@ -99,14 +100,22 @@ def summary(model_name, temperature, top_p, freq_penalty):
         # encoding = cp1252
         text_splitter = CharacterTextSplitter()
         try:
-            loader = CSVLoader(file_path=tmp_file_path, encoding="cp1252")
-            data = loader.load()
-            texts = text_splitter.split_text(data)
+            # opening the CSV file
+            with open(tmp_file_path, mode ='r')as file:
+                # reading the CSV file
+                csvFile = csv.reader(file)
+            #loader = CSVLoader(file_path=tmp_file_path, encoding="cp1252")
+            #data = loader.load()
+            texts = text_splitter.split_text(csvFile)
             docs = [Document(page_content=t) for t in texts[:3]]
         except:
-            loader = CSVLoader(file_path=tmp_file_path, encoding="utf-8")
-            data = loader.load()
-            texts = text_splitter.split_text(data)
+            # opening the CSV file
+            with open(tmp_file_path, mode ='r')as file:
+                # reading the CSV file
+                csvFile = csv.reader(file)
+            #loader = CSVLoader(file_path=tmp_file_path, encoding="utf-8")
+            #data = loader.load()
+            texts = text_splitter.split_text(csvFile)
             docs = [Document(page_content=t) for t in texts[:3]]
 
         os.remove(tmp_file_path)
