@@ -90,8 +90,8 @@ def chat(temperature, model_name):
         if st.session_state['generatedd']:
             with response_container:
                 for i in range(len(st.session_state['generatedd'])):
-                    message(st.session_state["pastt"][i], is_user=True, key=str(i) + '_user', avatar_style="big-smile")
-                    message(st.session_state["generatedd"][i], key=str(i), avatar_style="thumbs")
+                    message(st.session_state["pastt"][i], is_user=True, key=str(i) + '_user', avatar_style="Notionists")
+                    message(st.session_state["generatedd"][i], key=str(i), avatar_style="bottts")
         if reset:
             st.session_state["pastt"] = []
             st.session_state["generatedd"] = []
