@@ -16,6 +16,7 @@ from langchain.docstore.document import Document
 from langchain.vectorstores import FAISS
 from langchain.chat_models import ChatOpenAI
 from langchain.chains import ConversationalRetrievalChain
+from langchain.chains import RetrievalQA
 from langchain.memory import ConversationBufferMemory
 from langchain.chains.conversational_retrieval.prompts import CONDENSE_QUESTION_PROMPT
 from langchain.chains.question_answering import load_qa_chain
@@ -51,15 +52,21 @@ def chat(temperature, model_name):
 
         embeddings = OpenAIEmbeddings()
         vectors = FAISS.from_documents(data, embeddings)
-        
-        chain = ConversationalRetrievalChain.from_llm(llm = ChatOpenAI(temperature=temperature, model_name=model_name), retriever=vectors.as_retriever())
+        llm = ChatOpenAI(temperature=temperature, model_name=model_name) # 'gpt-3.5-turbo',
+        qa = RetrievalQA.from_chain_type(llm=llm,
+                                     chain_type="stuff", 
+                                     retriever=vectors.as_retriever(), 
+                                     verbose=True)
+        #chain = ConversationalRetrievalChain.from_llm(llm = ChatOpenAI(temperature=temperature, model_name=model_name), retriever=vectors.as_retriever())
 
         def conversational_chat(query):
         
-            result = chain({"question": query, "chat_history": st.session_state['history']})
-            st.session_state['history'].append((query, result["answer"]))
+#             result = chain({"question": query, "chat_history": st.session_state['history']})
+#             st.session_state['history'].append((query, result["answer"]))
+            result = qa.run(query) #chain({"question": query, "chat_history": st.session_state['history']})
+            st.session_state['history'].append((query, result))#["answer"]))
         
-            return result["answer"]
+            return result#["answer"]
     
         if 'history' not in st.session_state:
             st.session_state['history'] = []
