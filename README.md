@@ -28,7 +28,8 @@ pip install -r requirements.txt
 ## Usage
 
 To start CSV-AI, run the following command:
-``` streamlit run app.py
+```bash 
+streamlit run app.py
 ```
 This command will launch the CSV-AI app in your default web browser. You can then start exploring and analyzing your CSV files.
 
