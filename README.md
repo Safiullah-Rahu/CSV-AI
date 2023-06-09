@@ -7,7 +7,7 @@ CSV-AI is the ultimate app powered by LangChain, OpenAI, and Streamlit that allo
 CSV-AI offers the following key features:
 
 - **Interact:** Easily navigate through your CSV files and interact with the data.
-- **Summarize:** Generate descriptive statistics and summaries for your CSV data.
+- **Summarize:** Generate descriptive summaries for your CSV data.
 - **Analyze:** Perform advanced data analysis on your CSV files, including filtering, sorting, and visualizing the data.
 
 ## Installation
