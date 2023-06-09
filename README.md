@@ -33,7 +33,7 @@ streamlit run app.py
 ```
 This command will launch the CSV-AI app in your default web browser. You can then start exploring and analyzing your CSV files.
 
-<img src="CSV_AI.png">
+<img src="CSV_AI.PNG" alt="CSV-AI App Homepage">
 
 ## Feedback and Contributions
 If you have any feedback, suggestions, or issues related to CSV-AI, please open an issue on the GitHub repository. Contributions are also welcome! If you would like to contribute to CSV-AI, please follow the guidelines outlined in the Contribution Guidelines.
