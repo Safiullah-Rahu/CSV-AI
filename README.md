@@ -18,7 +18,7 @@ To run CSV-AI, follow these steps:
 2. Navigate to the project directory.
 
 ```bash
-git clone https://github.com/your-username/csv-ai.git
+git clone https://github.com/Safiullah-Rahu/CSV-AI.git
 cd csv-ai
 ```
 3. Install the required packages using `pip` with the provided `requirements.txt` file.
