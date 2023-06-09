@@ -22,7 +22,8 @@ git clone https://github.com/your-username/csv-ai.git
 cd csv-ai
 ```
 3. Install the required packages using `pip` with the provided `requirements.txt` file.
-``` pip install -r requirements.txt
+```bash 
+pip install -r requirements.txt
 ```
 ## Usage
 
