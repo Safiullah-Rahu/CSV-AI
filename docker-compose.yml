@@ -1,0 +1,15 @@
+services:
+  csv-ai:
+    build: .
+    image: csv-ai:latest
+    container_name: csv-ai
+    ports:
+      - "8501:8501"
+    env_file:
+      - .env
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5

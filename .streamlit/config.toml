@@ -1,0 +1,14 @@
+# Streamlit configuration.
+# Keep settings minimal so the user's OS theme drives the look-and-feel.
+
+[server]
+maxUploadSize = 200          # MB. Bump for big CSVs.
+headless = true
+
+[browser]
+gatherUsageStats = false
+
+[theme]
+# Leaving "base" unset means we respect the user's system preference (light/dark).
+primaryColor = "#7C3AED"
+font = "sans serif"
