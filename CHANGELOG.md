@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased
+
+### Fixed (found while recording the demo against Claude Sonnet 5.5)
+- Agents: a tool call written as function-call markup (`<invoke name="sql_query">…</invoke>`) instead of the requested JSON ended the run with the raw markup as its answer. The parser now reads both forms (first call only) and the prompt asks for JSON without markup.
+- Agents: runs use an output limit of 4,096 tokens per model call (`limits.max_output_tokens` overrides it) instead of the 1,024-token chat default, which cut long answers mid-sentence. A reply that still stops at the limit is marked as cut off. Providers report this as `ChatResponse.truncated`.
+- Agents: when the SQL itself needs a separate approval, the model is told not to retry (it used to file one approval request per retry).
+- Text-to-SQL: a cross join against a one-row source (a date window or total in a CTE, `LIMIT 1`) no longer needs approval; cross joins that can multiply rows still do.
+- Query results: the suggested chart skips id columns and charts a rate or percentage column on its own when there is one (it used to plot `carrier_id` beside the counts).
+- Connections map: shows the platform model ("Platform model", e.g. anthropic · claude-sonnet-5-5) when the organisation has no provider of its own, instead of "No language model configured".
+
+### Added
+- README demo video and screenshots (`docs/media`).
+
 ## 3.0.0 — 2026-11-02 · Enterprise RAG & Knowledge Intelligence Platform
 
 A ground-up transformation of CSV-AI v2 (single-user Streamlit app) into a multi-tenant platform. Git history of the reused modules is preserved (`git mv` into `backend/app`).

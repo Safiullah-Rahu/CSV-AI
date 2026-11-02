@@ -4,6 +4,23 @@
 
 > Status: functional, tested end-to-end on PostgreSQL 16 + pgvector. See [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md) for exactly what is complete, what is implemented-but-untested, and what is planned.
 
+## Demo
+
+[![Watch the 68-second demo on YouTube](docs/media/demo-video.jpg)](https://youtu.be/y7RYhWfFcmA)
+
+A 68-second walkthrough of the real app, with answers from Claude Sonnet 5.5: a cited contract answer, the same question from a member who can't see contracts, a plain-language database question, an agent that waits for an admin's approval, and the live Connections map. Halden Freight is fictional demo data. [Watch on YouTube](https://youtu.be/y7RYhWfFcmA).
+
+## Screenshots
+
+| | |
+| --- | --- |
+| ![Chat answer with its sources panel open on the cited clause](docs/media/chat-sources.png) | ![The same view in the dark theme](docs/media/chat-sources-dark.png) |
+| **Cited answers.** Every claim links to its page; the Sources panel shows the passage in context. | **Light and dark themes** from one token system ([docs/DESIGN.md](docs/DESIGN.md)). |
+| ![Query console with the executed SQL and a chart of the result](docs/media/query-console.png) | ![An admin approving an agent's database query](docs/media/agent-approval.png) |
+| **Text-to-SQL.** A plain-language question becomes validated, read-only SQL; the result is charted. | **Approvals.** Gated agent tools wait for someone else with `db.approve`; nobody approves their own request. |
+| ![The agent's resumed answer citing the contract and the database](docs/media/agent-resumed.png) | ![The live Connections map](docs/media/connections-map.png) |
+| **Agents resume after approval** with the requester's permissions, citing documents and live data. | **Connections map.** Sources, indexes, models and agents, built from real resources and live events. |
+
 ## Highlights
 
 - **Multi-tenant by construction** — PostgreSQL Row-Level Security forced on every tenant table, transaction-scoped tenant context, non-superuser DB role enforced at startup, cross-tenant leakage tests.

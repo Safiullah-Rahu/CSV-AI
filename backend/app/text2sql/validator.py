@@ -106,6 +106,28 @@ def _cte_names(tree: exp.Expression) -> set[str]:
     return {cte.alias_or_name.lower() for cte in tree.find_all(exp.CTE)}
 
 
+def _single_row(query: exp.Expression, ctes: dict[str, exp.Expression], seen: frozenset[str]) -> bool:
+    """True when a query returns at most one row: a constant SELECT, an aggregate without GROUP BY, LIMIT 1, or a
+    SELECT without joins over another such source (a date window in a CTE, for example)."""
+    if not isinstance(query, exp.Select) or query.args.get("joins") or query.args.get("group"):
+        return False
+    limit = query.args.get("limit")
+    if limit is not None and isinstance(limit.expression, exp.Literal) and limit.expression.this == "1":
+        return True
+    if query.expressions and all(isinstance(e.unalias(), exp.AggFunc) for e in query.expressions):
+        return True
+    source = query.args.get("from_") or query.args.get("from")
+    return source is None or _single_row_source(source.this, ctes, seen)
+
+
+def _single_row_source(node: exp.Expression, ctes: dict[str, exp.Expression], seen: frozenset[str] = frozenset()) -> bool:
+    if isinstance(node, exp.Subquery):
+        return _single_row(node.this, ctes, seen)
+    if isinstance(node, exp.Table) and not node.db and node.name.lower() in ctes and node.name.lower() not in seen:
+        return _single_row(ctes[node.name.lower()], ctes, seen | {node.name.lower()})
+    return False
+
+
 def _depth(node: exp.Expression) -> int:
     depth, cur = 0, node.parent
     while cur is not None:
@@ -190,8 +212,10 @@ def validate(sql: str, policy: Policy) -> Validation:
     joins = list(tree.find_all(exp.Join))
     if len(joins) > policy.max_joins:
         return _reject(f"Too many joins ({len(joins)} > {policy.max_joins}).")
+    cte_queries = {cte.alias_or_name.lower(): cte.this for cte in tree.find_all(exp.CTE)}
     for j in joins:
-        if not j.args.get("on") and not j.args.get("using") and policy.require_approval_for_cross_join:
+        # A cross join against a one-row source (a date window, a total) cannot multiply rows, so it needs no approval.
+        if not j.args.get("on") and not j.args.get("using") and policy.require_approval_for_cross_join and not _single_row_source(j.this, cte_queries):
             approval.append("Cross join (no join condition) requires approval.")
     # Expand stars to allowed columns (prevents reading excluded/sensitive columns).
     for star_parent in list(tree.find_all(exp.Select)):
