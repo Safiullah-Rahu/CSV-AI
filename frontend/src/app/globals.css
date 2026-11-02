@@ -1,0 +1,200 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---------------------------------------------------------------- design tokens
+   "Porcelain / Graphite" - see docs/DESIGN.md.
+   Colours are HSL triplets consumed by Tailwind (`bg-surface`, `text-muted`, ...).
+   Light: warm porcelain neutrals. Dark: neutral graphite (no blue cast).
+   One accent ("iris") carries every interactive and AI moment; status colours
+   are reserved for state, never decoration. */
+@layer base {
+  :root {
+    --frame: 40 10% 94.5%;
+    --bg: 45 20% 98.8%;
+    --surface: 0 0% 100%;
+    --surface-2: 40 14% 96%;
+    --border: 40 9% 89.5%;
+    --border-strong: 40 7% 81%;
+    --fg: 30 10% 10%;
+    --muted: 30 5% 37%;
+    --subtle: 34 5% 55%;
+    --accent: 244 74% 58%;
+    --accent-fg: 0 0% 100%;
+    --ok: 158 64% 31%;
+    --warn: 32 92% 41%;
+    --danger: 2 72% 50%;
+    --info: 205 85% 41%;
+    --ring: 244 74% 62%;
+    --shadow: 30 20% 12%;
+    --highlight: 0 0% 100% / 0.9;
+    color-scheme: light;
+  }
+
+  .dark {
+    --frame: 240 6% 4.2%;
+    --bg: 240 5% 6.6%;
+    --surface: 240 5% 9.2%;
+    --surface-2: 240 4% 12.6%;
+    --border: 240 4% 16.5%;
+    --border-strong: 240 4% 23%;
+    --fg: 40 14% 94%;
+    --muted: 240 4% 66%;
+    --subtle: 240 3% 47%;
+    --accent: 244 95% 73%;
+    --accent-fg: 244 55% 9%;
+    --ok: 155 58% 50%;
+    --warn: 38 95% 60%;
+    --danger: 0 85% 66%;
+    --info: 200 88% 64%;
+    --ring: 244 95% 76%;
+    --shadow: 0 0% 0%;
+    --highlight: 0 0% 100% / 0.04;
+    color-scheme: dark;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html,
+  body {
+    @apply h-full;
+  }
+
+  body {
+    @apply bg-frame text-fg font-sans antialiased;
+    font-feature-settings: "ss01", "ss02", "cv01";
+    text-rendering: optimizeLegibility;
+    font-size: 14px;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  ::selection {
+    background: hsl(var(--accent) / 0.22);
+  }
+
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+    border-radius: 999px;
+    border: 3px solid transparent;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--subtle));
+    background-clip: content-box;
+    border: 3px solid transparent;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-xl border bg-surface shadow-card;
+  }
+  /* Instrument-style micro label: mono, uppercase, wide tracking. */
+  .label {
+    @apply font-mono text-[10.5px] font-medium uppercase tracking-[0.12em] text-subtle;
+  }
+  /* Faint dot / line grids used behind hero areas and empty states. */
+  .bg-dots {
+    background-image: radial-gradient(hsl(var(--fg) / 0.075) 1px, transparent 1px);
+    background-size: 16px 16px;
+  }
+  .bg-grid {
+    background-image: linear-gradient(hsl(var(--fg) / 0.045) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--fg) / 0.045) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+  .text-gradient {
+    background: linear-gradient(100deg, hsl(var(--fg)) 35%, hsl(var(--accent)) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  /* Staggered entrance: children fade up 40 ms apart. */
+  .stagger > * {
+    animation: fade-up 420ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+  .stagger > *:nth-child(2) { animation-delay: 40ms; }
+  .stagger > *:nth-child(3) { animation-delay: 80ms; }
+  .stagger > *:nth-child(4) { animation-delay: 120ms; }
+  .stagger > *:nth-child(5) { animation-delay: 160ms; }
+  .stagger > *:nth-child(n + 6) { animation-delay: 200ms; }
+  .num {
+    font-variant-numeric: tabular-nums;
+  }
+  .prose-chat {
+    @apply text-[0.9375rem] leading-relaxed;
+  }
+  .prose-chat p {
+    @apply my-2;
+  }
+  .prose-chat ul {
+    @apply my-2 list-disc pl-5;
+  }
+  .prose-chat ol {
+    @apply my-2 list-decimal pl-5;
+  }
+  .prose-chat li {
+    @apply my-0.5;
+  }
+  .prose-chat h1,
+  .prose-chat h2,
+  .prose-chat h3 {
+    @apply mb-1 mt-4 font-semibold;
+  }
+  .prose-chat code {
+    @apply rounded bg-surface-2 px-1 py-0.5 font-mono text-[0.85em];
+  }
+  .prose-chat pre {
+    @apply my-3 overflow-x-auto rounded-lg border bg-surface-2 p-3 font-mono text-xs;
+  }
+  .prose-chat pre code {
+    @apply bg-transparent p-0;
+  }
+  .prose-chat table {
+    @apply my-3 w-full border-collapse text-sm;
+  }
+  .prose-chat th {
+    @apply border-b px-2 py-1.5 text-left font-medium text-muted;
+  }
+  .prose-chat td {
+    @apply border-b px-2 py-1.5;
+  }
+  .prose-chat blockquote {
+    @apply my-2 border-l-2 border-border-strong pl-3 text-muted;
+  }
+  .prose-chat a {
+    @apply text-accent underline underline-offset-2;
+  }
+}
+
+/* Connections map styles live in components/connections/connections.css. */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}

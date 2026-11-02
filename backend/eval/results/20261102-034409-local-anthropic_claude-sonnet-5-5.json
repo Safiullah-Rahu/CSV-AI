@@ -1,0 +1,74 @@
+{
+  "embedder": {
+    "provider": "local",
+    "model": "BAAI/bge-small-en-v1.5"
+  },
+  "llm": "anthropic:claude-sonnet-5-5",
+  "k": 5,
+  "documents": 7,
+  "ingest_seconds": 1.67,
+  "configs": {
+    "hybrid+rerank (default)": {
+      "summary": {
+        "precision@5": 0.2,
+        "recall@5": 1.0,
+        "mrr": 1.0,
+        "ndcg@5": 1.0,
+        "hit@5": 1.0,
+        "answer_relevance": 1.0,
+        "citation_correctness": 1.0,
+        "faithfulness": 1.0,
+        "false_refusals": 0.0,
+        "refusal_accuracy_unanswerable": null,
+        "retrieval_ms_avg": 46.7,
+        "retrieval_ms_p95": 36.9,
+        "generation_ms_avg": 0.0,
+        "questions": 2,
+        "tokens_in_total": 0,
+        "tokens_out_total": 159
+      },
+      "rows": [
+        {
+          "q": "How many days of paid annual leave do full-time employees get?",
+          "mode": "extractive",
+          "answerable": true,
+          "retrieval_ms": 56.5,
+          "generation_ms": 0,
+          "answer": "Here is what the authorized sources say:\n\n- Full-time employees receive 26 days of paid annual leave per calendar year, plus public holidays [S1].\n\n_The language model failed (anthropic stream rejected (HTTP 400): `temperature` is deprecated for this model.); this is an extractive answer from the sources._",
+          "tokens_in": 0,
+          "tokens_out": 66,
+          "precision": 0.2,
+          "recall": 1.0,
+          "mrr": 1.0,
+          "ndcg": 1.0,
+          "hit": 1.0,
+          "answer_relevance": 1.0,
+          "citation_correct": 1.0,
+          "cited_any": 1.0,
+          "refused": 0.0,
+          "faithfulness": 1.0
+        },
+        {
+          "q": "How many unused leave days can be carried over?",
+          "mode": "extractive",
+          "answerable": true,
+          "retrieval_ms": 36.9,
+          "generation_ms": 0,
+          "answer": "Here is what the authorized sources say:\n\n- Up to 5 unused days may be carried over to the next year and must be used by 31 March [S1].\n- Full-time employees receive 26 days of paid annual leave per calendar year, plus public holidays [S1].\n\n_The language model failed (anthropic stream rejected (HTTP 400): `temperature` is deprecated for this model.); this is an extractive answer from the sources._",
+          "tokens_in": 0,
+          "tokens_out": 93,
+          "precision": 0.2,
+          "recall": 1.0,
+          "mrr": 1.0,
+          "ndcg": 1.0,
+          "hit": 1.0,
+          "answer_relevance": 1.0,
+          "citation_correct": 1.0,
+          "cited_any": 1.0,
+          "refused": 0.0,
+          "faithfulness": 1.0
+        }
+      ]
+    }
+  }
+}
