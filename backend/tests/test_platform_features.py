@@ -144,6 +144,21 @@ def test_connections_graph_reflects_real_resources(make_user, invite_member, cus
     assert health["infrastructure"]["database"]["ok"]
 
 
+def test_connections_graph_shows_the_platform_model(make_user, monkeypatch):
+    from app.llm import registry
+    from app.services import graph_service
+
+    owner = make_user("Graph Platform Co")
+    g = owner.get("/connections/graph").json()
+    assert "model:extractive" in {n["id"] for n in g["nodes"]}  # no provider and no platform model in tests
+    monkeypatch.setattr(graph_service, "platform_fallback", lambda org: registry.ResolvedLLM(ToolModel(), None, "anthropic"))
+    g = owner.get("/connections/graph").json()
+    ids = {n["id"]: n for n in g["nodes"]}
+    assert "model:extractive" not in ids and ids["model:platform"]["status"] == "healthy"
+    assert ids["model:platform"]["data"]["kind"] == "anthropic"
+    assert ("rag:engine", "model:platform", "generates") in {(e["source"], e["target"], e["kind"]) for e in g["edges"]}
+
+
 def test_events_list_and_sse_stream(make_user):
     owner = make_user("Events Co")
     owner.post("/knowledge-bases", json={"name": "KB events"})
@@ -243,6 +258,76 @@ def test_agent_survives_malformed_tool_input(make_user, monkeypatch):
     assert "must be a JSON object" in steps[0]["result"]
     assert "invalid input for kb_search" in steps[1]["result"]
     assert r.json()["status"] == "complete"
+
+
+class MarkupToolModel(LLMProvider):
+    """Writes its tool call as function-call markup (repeated, as Claude Sonnet 5.5 sometimes does) instead of JSON."""
+
+    name = "markup"
+
+    def __init__(self) -> None:
+        super().__init__(model="markup")
+        self.turn = 0
+
+    def complete(self, messages: Iterable[Message]) -> ChatResponse:
+        self.turn += 1
+        if self.turn == 1:
+            call = '<invoke name="kb_search">\n<parameter name="input">{"query": "expense approval above 5000"}</parameter>\n</invoke>\n\n'
+            return ChatResponse(content=call * 3, model="markup")
+        label = "S1" if "[S1]" in messages[-1].content else "S9"
+        return ChatResponse(content=json.dumps({"final": f"Expenses above 5,000 EUR need CFO approval [{label}]."}), model="markup")
+
+    def stream(self, messages: Iterable[Message]) -> Iterator[str]:
+        yield self.complete(messages).content
+
+
+def test_agent_accepts_function_call_markup(make_user, monkeypatch):
+    from app.agents.runner import _parse
+    from app.api.v1 import ai
+    from app.llm import registry
+
+    assert _parse('<invoke name="sql_query"><parameter name="question">late loads</parameter></invoke>') == {"tool": "sql_query", "input": {"question": "late loads"}}
+    assert _parse('Done. {"final": "ok"}') == {"final": "ok"}
+    assert _parse("No tools needed here.") is None
+    owner = make_user("Agent Markup Co")
+    sample = owner.post("/onboarding/sample-kb").json()
+    agent = owner.post("/agents", json={"name": "Markup", "kb_ids": [sample["id"]], "tools": ["kb_search"]}).json()
+    monkeypatch.setattr(ai, "resolve_llm", lambda *a, **k: registry.ResolvedLLM(MarkupToolModel(), None, "markup"))
+    r = owner.post(f"/agents/{agent['id']}/run", json={"question": "Who approves large expenses?"}).json()
+    assert r["status"] == "complete" and "<invoke" not in r["answer"] and "CFO" in r["answer"]
+    assert [s["tool"] for s in r["steps"]] == ["kb_search"] and any(c["cited"] for c in r["citations"])
+
+
+class CutOffModel(LLMProvider):
+    """Finishes with a final answer that stops at max_tokens, and records the output limit it was given."""
+
+    name = "cutoff"
+
+    def __init__(self) -> None:
+        super().__init__(model="cutoff", max_tokens=1024)
+        self.limits: list[int] = []
+
+    def complete(self, messages: Iterable[Message]) -> ChatResponse:
+        self.limits.append(self.max_tokens)
+        return ChatResponse(content='{"final": "**Exit without a fee:** Yes.\\n\\n- The fee applies only in the first', model="cutoff", truncated=True)
+
+    def stream(self, messages: Iterable[Message]) -> Iterator[str]:
+        yield self.complete(messages).content
+
+
+def test_agent_run_gets_a_larger_output_limit_and_flags_a_cut_off_answer(make_user, monkeypatch):
+    from app.api.v1 import ai
+    from app.llm import registry
+
+    owner = make_user("Agent Cutoff Co")
+    sample = owner.post("/onboarding/sample-kb").json()
+    agent = owner.post("/agents", json={"name": "Long answers", "kb_ids": [sample["id"]], "tools": ["kb_search"]}).json()
+    model = CutOffModel()
+    monkeypatch.setattr(ai, "resolve_llm", lambda *a, **k: registry.ResolvedLLM(model, None, "cutoff"))
+    r = owner.post(f"/agents/{agent['id']}/run", json={"question": "Can we exit without a fee?"}).json()
+    assert model.limits == [4096] and model.max_tokens == 1024  # raised for the run, restored afterwards
+    assert r["answer"].startswith("**Exit without a fee:** Yes.") and '{"final"' not in r["answer"]
+    assert "cut off at the model's output limit" in r["answer"]
 
 
 def test_agent_approval_tools(make_user, monkeypatch):

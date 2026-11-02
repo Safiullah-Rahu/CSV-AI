@@ -40,6 +40,7 @@ class ChatResponse:
     prompt_tokens: int = 0
     completion_tokens: int = 0
     raw: object | None = field(default=None, repr=False)
+    truncated: bool = False  # the reply stopped at max_tokens
 
     @property
     def total_tokens(self) -> int:

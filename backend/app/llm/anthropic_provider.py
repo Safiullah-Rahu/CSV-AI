@@ -113,6 +113,7 @@ class AnthropicProvider(LLMProvider):
             prompt_tokens=int(usage.get("input_tokens") or 0),
             completion_tokens=int(usage.get("output_tokens") or 0),
             raw=data,
+            truncated=data.get("stop_reason") == "max_tokens",
         )
 
     def stream(self, messages: Iterable[Message]) -> Iterator[str]:

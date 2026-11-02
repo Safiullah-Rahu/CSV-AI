@@ -149,11 +149,19 @@ def generate_sql(llm: ResolvedLLM, question: str, source: SqlSource, previous: t
     return extract_sql(llm.provider.complete(messages).content)
 
 
+_ID_COLUMN = re.compile(r"(^|_)id$", re.I)
+_RATE_WORDS = ("pct", "percent", "rate", "ratio", "share")
+
+
 def suggest_chart(columns: list[str], rows: list[list[Any]]) -> dict[str, Any] | None:
     if not rows or len(columns) < 2 or len(rows) > 200:
         return None
-    numeric = [i for i in range(len(columns)) if all(isinstance(r[i], (int, float)) and not isinstance(r[i], bool) for r in rows if r[i] is not None)]
-    dims = [i for i in range(len(columns)) if i not in numeric]
+    # Identifiers are labels, not measures; when a rate or percentage is present it is the measure (counts on the same axis would dwarf it).
+    ids = {i for i, c in enumerate(columns) if _ID_COLUMN.search(c)}
+    numeric = [i for i in range(len(columns)) if i not in ids and all(isinstance(r[i], (int, float)) and not isinstance(r[i], bool) for r in rows if r[i] is not None)]
+    rates = [i for i in numeric if any(w in columns[i].lower() for w in _RATE_WORDS)]
+    dims = [i for i in range(len(columns)) if i not in numeric and i not in ids] or sorted(ids)
+    numeric = rates or numeric
     if not numeric or not dims:
         return None
     x = dims[0]

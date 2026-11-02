@@ -110,6 +110,31 @@ def test_sensitive_table_needs_approval(policy: Policy) -> None:
 def test_cross_join_needs_approval(policy: Policy) -> None:
     v = validate("SELECT c.name, o.amount FROM customers c CROSS JOIN orders o", policy)
     assert v.ok and v.needs_approval
+    # Joining a table to itself through a CTE still multiplies rows.
+    v = validate("WITH big AS (SELECT id FROM orders) SELECT o.id FROM orders o CROSS JOIN big", policy)
+    assert v.ok and v.needs_approval
+
+
+def test_cross_join_with_one_row_source_needs_no_approval(policy: Policy) -> None:
+    # A date window in a CTE (and a CTE built on it), a total, and LIMIT 1 cannot multiply rows.
+    window = ("WITH q AS (SELECT DATE('now', 'start of month') AS q_start), b AS (SELECT q_start, DATE(q_start, '+3 months') AS q_end FROM q) "
+              "SELECT o.id FROM orders o CROSS JOIN b WHERE o.created_at >= b.q_start AND o.created_at < b.q_end")
+    for sql in (window,
+                "WITH t AS (SELECT MAX(amount) AS top FROM orders) SELECT o.id FROM orders o CROSS JOIN t WHERE o.amount = t.top",
+                "SELECT o.id FROM orders o CROSS JOIN (SELECT id FROM customers LIMIT 1) AS c1"):
+        v = validate(sql, policy)
+        assert v.ok and not v.needs_approval, (sql, v.errors, v.approval_reasons)
+
+
+def test_chart_suggestion_skips_ids_and_prefers_rates() -> None:
+    from app.text2sql.engine import suggest_chart
+
+    cols = ["carrier_id", "carrier_name", "total_shipments", "on_time_rate_pct"]
+    rows = [[1, "Brightline", 360, 91.39], [2, "Kestrel", 360, 96.94]]
+    chart = suggest_chart(cols, rows)
+    assert chart and chart["type"] == "bar" and chart["x"] == "carrier_name" and chart["y"] == ["on_time_rate_pct"]
+    assert suggest_chart(["region", "orders", "revenue"], [["EMEA", 3, 10.5]])["y"] == ["orders", "revenue"]
+    assert suggest_chart(["customer_id", "orders"], [[7, 3], [8, 5]])["x"] == "customer_id"  # an id is still a usable label
 
 
 def test_row_filter_validation() -> None:

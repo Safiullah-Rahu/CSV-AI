@@ -22,6 +22,7 @@ from sqlalchemy import func, select
 from app.api.deps import OrgContext
 from app.connectors.databases import provider_info
 from app.connectors.integrations import INTEGRATIONS
+from app.llm.registry import platform_fallback
 from app.models import (
     Agent,
     AIProviderConfig,
@@ -212,12 +213,16 @@ def build_graph(ctx: OrgContext, *, workspace_id: uuid.UUID | None = None, kb_id
     node("rag:engine", "rag", "RAG engine", "healthy", retrieval="hybrid (dense + BM25) · rerank · MMR", grounding="citations enforced")
     edge("vector:pgvector", "rag:engine", "retrieves")
     providers = [p for p in db.scalars(select(AIProviderConfig).where(AIProviderConfig.org_id == org.id)) if p.kind not in ("cohere", "voyage")]
-    if providers:
-        for p in providers:
-            status = "disabled" if not p.enabled else {"failed": "failed", "healthy": "healthy"}.get(p.status, "idle")
-            node(f"model:{p.id}", "ai_model", p.name, status, kind=p.kind, model=p.default_model, is_default=p.is_default, last_checked_at=_iso(p.last_checked_at), last_error=p.last_error if authz.has("admin.ai_providers") else None)
-            edge("rag:engine", f"model:{p.id}", "generates", "disabled" if not p.enabled else ("failed" if status == "failed" else "healthy"))
-    else:
+    for p in providers:
+        status = "disabled" if not p.enabled else {"failed": "failed", "healthy": "healthy"}.get(p.status, "idle")
+        node(f"model:{p.id}", "ai_model", p.name, status, kind=p.kind, model=p.default_model, is_default=p.is_default, last_checked_at=_iso(p.last_checked_at), last_error=p.last_error if authz.has("admin.ai_providers") else None)
+        edge("rag:engine", f"model:{p.id}", "generates", "disabled" if not p.enabled else ("failed" if status == "failed" else "healthy"))
+    # Without an enabled provider of its own, the organisation answers with the deployment's platform model (if any).
+    fallback = None if any(p.enabled for p in providers) else platform_fallback(org)
+    if fallback is not None:
+        node("model:platform", "ai_model", "Platform model", "healthy", kind=fallback.kind, model=fallback.provider.model, is_default=True, note="Provided by this deployment")
+        edge("rag:engine", "model:platform", "generates")
+    elif not providers:
         node("model:extractive", "ai_model", "Extractive answers", "idle", kind="none", note="No language model configured")
         edge("rag:engine", "model:extractive", "generates", "idle")
     if authz.has("agents.view"):

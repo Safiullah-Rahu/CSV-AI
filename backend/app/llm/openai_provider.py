@@ -117,6 +117,7 @@ class OpenAIProvider(LLMProvider):
             prompt_tokens=int(usage.get("prompt_tokens") or 0),
             completion_tokens=int(usage.get("completion_tokens") or 0),
             raw=data,
+            truncated=choice.get("finish_reason") == "length",
         )
 
     def stream(self, messages: Iterable[Message]) -> Iterator[str]:
