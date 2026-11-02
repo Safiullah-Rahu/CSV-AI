@@ -1,97 +1,62 @@
-# CSV-AI 🧠 v2
+# Knowledge Intelligence
 
-**Modernized AI-powered CSV analysis** — chat with, summarize, and analyze your CSV files using OpenAI, Anthropic, or a local Ollama model. Built for Streamlit Cloud, local laptops, and future API split.
+**Enterprise RAG & knowledge intelligence platform**: a multi-tenant, permission-aware knowledge platform that grew out of the CSV-AI analysis assistant. Organisations connect documents, spreadsheets, databases and web/code sources; members ask questions and get answers **grounded in sources they are allowed to see, with clickable citations** down to the page, sheet row or database query.
 
-> This is the v2 rewrite of [Safiullah-Rahu/CSV-AI](https://github.com/Safiullah-Rahu/CSV-AI). The product idea is unchanged; the architecture is modular, the AI stack is provider-agnostic, and the UI is a clean modern dashboard.
+> Status: functional, tested end-to-end on PostgreSQL 16 + pgvector. See [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md) for exactly what is complete, what is implemented-but-untested, and what is planned.
 
-## Features
+## Highlights
 
-- **💬 Chat** — schema- and sample-aware Q&A with token-streaming.
-- **📝 Summarize** — single-call structured overview (replaces the old map-reduce flow).
-- **📊 Analyze** — deterministic pandas stats + LLM analyst narrative side-by-side, with charts, missingness, and correlations.
-- **🔌 Multi-provider** — OpenAI, Anthropic Claude, or local Ollama.
-- **🎛️ Modern UI** — sidebar nav, `st.chat_message`, light/dark friendly, custom CSS polish.
-- **🧱 Modular** — clean `app/` package; no Streamlit imports in services, so a FastAPI layer can be added later.
+- **Multi-tenant by construction** — PostgreSQL Row-Level Security forced on every tenant table, transaction-scoped tenant context, non-superuser DB role enforced at startup, cross-tenant leakage tests.
+- **Fine-grained access control** — 55 permissions, 11 predefined roles + custom roles (escalation-safe), workspace-scoped roles, grants to users/teams/departments/roles/workspaces with **deny-wins** and expiry, restricted documents, table-limited database grants. Enforced inside every retrieval query.
+- **Serious RAG** — 30+ file formats with page/section/sheet/row locators, 9 chunking strategies, pgvector dense + real BM25 sparse retrieval over the authorized corpus, RRF fusion, feature reranking, MMR, query expansion, parent-child, compression, conversational query rewriting, prompt-injection screening, citation verification, honest refusals. Works offline (extractive answers) or with 10 LLM provider kinds.
+- **Databases & Text-to-SQL** — connector framework (PostgreSQL & SQLite tested; MySQL/MariaDB/SQL Server/Oracle/Redshift/MongoDB beta), schema discovery, table/column selection, sensitive columns, row filters, full/incremental/scheduled sync with deletion propagation, and a sqlglot-based SQL validator with approvals.
+- **CSV-AI heritage** — every uploaded CSV/XLSX/JSON/Parquet becomes a dataset with profiling, deterministic analysis, summaries and natural-language/SQL querying (DuckDB sandbox).
+- **Connections command center** — a live, animated map of the organisation's data ecosystem built from real resources and real-time events (SSE), plus list and data-flow views.
+- **Operations** — PostgreSQL-backed job queue with retries/dead-lettering, webhooks (HMAC-signed), scoped API keys, audit log (append-only), analytics, plan limits, platform administration without tenant content access, Docker Compose with TLS, backups.
 
 ## Quick start
 
-```bash
-git clone https://github.com/Safiullah-Rahu/CSV-AI.git
-cd CSV-AI
-
-python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-
-cp .env.example .env       # then add your API keys
-streamlit run streamlit_app.py
-```
-
-Open <http://localhost:8501> and upload a CSV.
-
-## Configuration
-
-CSV-AI loads settings from (in order): environment variables → `.env` file → Streamlit secrets. See `.env.example` and `.streamlit/secrets.toml.example`.
-
-| Variable | Default | Purpose |
-| --- | --- | --- |
-| `OPENAI_API_KEY` | — | Required if using OpenAI. |
-| `ANTHROPIC_API_KEY` | — | Required if using Anthropic. |
-| `OLLAMA_BASE_URL` | `http://localhost:11434` | Local Ollama endpoint. |
-| `DEFAULT_PROVIDER` | `openai` | One of `openai`, `anthropic`, `ollama`. |
-| `DEFAULT_MODEL` | `gpt-4o-mini` | Used until the user picks one in the sidebar. |
-| `DEFAULT_TEMPERATURE` | `0.2` | 0.0–1.5. |
-| `DEFAULT_MAX_TOKENS` | `1024` | Response length cap. |
-
-## Project structure
-
-```
-app/
-├── config/        # pydantic-settings (env + secrets)
-├── llm/           # provider-agnostic LLM interface + OpenAI / Anthropic / Ollama
-├── data/          # CSV loader, profiler, sampler, prompt-context builder
-├── prompts/       # versioned system prompts
-├── services/      # ChatService, SummaryService, AnalysisService (UI-free)
-├── ui/            # Streamlit pages + components + theme + session state
-└── utils/         # logging, errors, token counting
-
-tests/             # pytest suite (loader, profiler, factory)
-streamlit_app.py   # Streamlit Cloud entry point
-```
-
-See [ARCHITECTURE.md](ARCHITECTURE.md) for the rationale behind each layer.
-
-## Deployment
-
-- **Streamlit Community Cloud** — point it at `streamlit_app.py`, add keys to `Secrets`.
-- **Local** — `streamlit run streamlit_app.py`.
-- **Docker** — `docker compose up --build` (uses `.env`).
-- **Future API split** — services are pure-Python; a FastAPI layer is a small adapter.
-
-Full instructions in [DEPLOYMENT.md](DEPLOYMENT.md).
-
-## Development
+**Docker (single server):**
 
 ```bash
-pip install -r requirements-dev.txt
-pytest                     # run tests
-ruff check .               # lint
-black .                    # format
+cp .env.example .env        # fill in secrets — see DEPLOYMENT.md
+docker compose up -d --build
 ```
 
-## What changed vs. v1
+**Local development (no Docker; embedded PostgreSQL):**
 
-| | v1 | v2 |
-| --- | --- | --- |
-| Architecture | 278-line `app.py` | modular `app/` package |
-| LLM | OpenAI only, via LangChain | OpenAI · Anthropic · Ollama via thin native SDKs |
-| Imports | `langchain.chat_models`, `langchain.embeddings` (deprecated) | current SDKs |
-| Chat context | FAISS retrieval over CSV chunks | schema + smart sample (cheaper, more accurate) |
-| Summarize | LangChain `load_summarize_chain(map_reduce)` | single structured prompt |
-| Analyze | `create_pandas_dataframe_agent` only | deterministic pandas stats + LLM narrative |
-| UI | one `selectbox` of "functionality" | sidebar nav + tabbed stats + theme polish |
-| Config | `os.environ` inline | `pydantic-settings` |
-| Tests | none | pytest suite |
-| Docker | none | Dockerfile + compose |
+```bash
+cd backend && python -m venv .venv && .venv/Scripts/activate && pip install -e ".[dev,local-embeddings]"
+python scripts/dev.py                 # API :8000
+python scripts/seed_demo.py           # optional demo data
+cd ../frontend && npm install && npm run dev   # UI :3000
+```
+
+To get generated answers in development without configuring a provider in the UI, start the API with a file holding `ANTHROPIC_API_KEY` and/or `OPENAI_API_KEY` (only those keys, plus `ANTHROPIC_WORKSPACE_ID`, are read and never printed): `python scripts/dev.py --env-file ../.env.keys`. Organisations without their own provider then answer with Claude Sonnet 5.5 or GPT-5.4 mini. A local Ollama provider is available too (`seed_demo.py --ollama`), but small models on a CPU are slow and unreliable.
+
+## Documentation
+
+| Document | Contents |
+| --- | --- |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | System design, tenancy, authorization model, ingestion, RAG engine, Text-to-SQL, jobs, events |
+| [SECURITY.md](SECURITY.md) | Controls, RAG-specific protections, tests, known limitations |
+| [DEPLOYMENT.md](DEPLOYMENT.md) | Installation, configuration, operations, backups, upgrades, troubleshooting |
+| [docs/API.md](docs/API.md) | Authentication, errors, endpoint map, examples, webhooks |
+| [docs/RAG_EVALUATION.md](docs/RAG_EVALUATION.md) | Evaluation method and results, incl. live Claude and OpenAI runs |
+| [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md) | Honest feature matrix |
+| [docs/TESTING.md](docs/TESTING.md) | Backend tests, RAG evaluation and the browser E2E suite |
+| [docs/DESIGN.md](docs/DESIGN.md) | Design system |
+| [docs/ASSESSMENT.md](docs/ASSESSMENT.md) | Phase 1 assessment of CSV-AI v2 |
+| [CHANGELOG.md](CHANGELOG.md) | Release notes |
+
+## Repository
+
+```
+backend/    FastAPI app, Alembic migrations, tests (164), RAG evaluation
+frontend/   Next.js 15 app (design system, 17 sections, chat, Connections map)
+deploy/     Postgres init, Caddy (TLS), backup/restore
+docs/       API guide, evaluation, testing, design system, assessment
+```
 
 ## License
 

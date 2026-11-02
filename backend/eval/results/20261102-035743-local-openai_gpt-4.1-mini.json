@@ -1,0 +1,46 @@
+{
+  "embedder": {
+    "provider": "local",
+    "model": "BAAI/bge-small-en-v1.5"
+  },
+  "llm": "openai:gpt-4.1-mini",
+  "k": 5,
+  "documents": 7,
+  "ingest_seconds": 10.03,
+  "configs": {
+    "hybrid+rerank (default)": {
+      "summary": {
+        "precision@5": null,
+        "recall@5": null,
+        "mrr": null,
+        "ndcg@5": null,
+        "hit@5": null,
+        "answer_relevance": null,
+        "citation_correctness": null,
+        "faithfulness": null,
+        "false_refusals": null,
+        "refusal_accuracy_unanswerable": 1.0,
+        "retrieval_ms_avg": 409.9,
+        "retrieval_ms_p95": 409.9,
+        "generation_ms_avg": 1522.1,
+        "questions": 1,
+        "tokens_in_total": 550,
+        "tokens_out_total": 15
+      },
+      "rows": [
+        {
+          "q": "What is the company's parental leave policy?",
+          "mode": "llm",
+          "answerable": false,
+          "retrieval_ms": 409.9,
+          "generation_ms": 1522.1,
+          "answer": "The provided sources do not contain any information about the company's parental leave policy.",
+          "rejected_model_answer": null,
+          "tokens_in": 550,
+          "tokens_out": 15,
+          "correct_refusal": 1.0
+        }
+      ]
+    }
+  }
+}

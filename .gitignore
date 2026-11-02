@@ -21,3 +21,20 @@ Thumbs.db
 *.log
 build/
 dist/
+
+# Runtime data: embedded PostgreSQL, uploaded files, SQLite sources
+backend/var/
+
+# Frontend build output and dependencies
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/tsconfig.tsbuildinfo
+frontend/next-env.d.ts
+
+# Playwright end-to-end tests (frontend/e2e)
+frontend/test-results/
+frontend/playwright-report/
+frontend/blob-report/
+frontend/playwright/.cache/
+frontend/e2e/.state/
