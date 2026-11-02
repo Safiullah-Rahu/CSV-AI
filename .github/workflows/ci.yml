@@ -17,9 +17,18 @@ jobs:
         ports: ["5432:5432"]
         options: >-
           --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 20
+      # A separate server plays the customer's database: the SSRF guard (rightly) refuses
+      # connections to the platform's own database endpoint.
+      customer:
+        image: postgres:16
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports: ["5433:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 20
     env:
       TEST_DATABASE_URL: postgresql+psycopg://rag@localhost:5432/rag_test
-      TEST_CUSTOMER_PG_ADMIN_URL: postgresql://postgres@localhost:5432/postgres
+      TEST_CUSTOMER_PG_ADMIN_URL: postgresql://postgres@localhost:5433/postgres
     defaults:
       run:
         working-directory: backend
