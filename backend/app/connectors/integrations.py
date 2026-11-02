@@ -49,7 +49,7 @@ INTEGRATIONS: dict[str, dict[str, Any]] = {
     "slack": {"label": "Slack", "category": "collaboration", "status": "beta", "auth": "OAuth 2.0 or bot token (xoxb-)", "auth_modes": ["oauth", "token"], "oauth": {"provider": "slack", "scopes": ["channels:read", "channels:history", "groups:read", "groups:history", "users:read"]}, "fields": ["channels", "lookback_days", "max_items"]},
     "teams": {"label": "Microsoft Teams", "category": "collaboration", "status": "beta", "auth": "OAuth 2.0 (Microsoft Graph)", "auth_modes": ["oauth"], "oauth": {"provider": "microsoft", "scopes": ["offline_access", "User.Read", "Team.ReadBasic.All", "Channel.ReadBasic.All", "ChannelMessage.Read.All"]}, "fields": ["team_id", "channel_ids", "lookback_days", "tenant", "max_items"]},
     "gitlab": {"label": "GitLab", "category": "development", "status": "tested", "auth": "token (optional for public projects)", "auth_modes": ["token"], "fields": ["project", "branch", "path_prefix", "extensions", "base_url", "max_files"], "verified": "Live check 2026-11-02 against public gitlab.com project gitlab-org/project-templates/express without a token (project lookup, recursive tree, raw blob fetch); token and self-managed paths are covered by stubbed tests only"},
-    "email": {"label": "Email (IMAP)", "category": "collaboration", "status": "beta", "auth": "IMAP username + password", "auth_modes": ["token"], "fields": ["host", "port", "security", "username", "folder", "lookback_days", "max_items"]},
+    "email": {"label": "Email (IMAP)", "category": "collaboration", "status": "beta", "auth": "IMAP account login (an app-specific password where supported)", "auth_modes": ["token"], "fields": ["host", "port", "security", "username", "folder", "lookback_days", "max_items"]},
 }
 
 

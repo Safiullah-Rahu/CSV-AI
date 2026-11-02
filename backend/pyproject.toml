@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "knowledge-intelligence"
 version = "3.0.0"
 description = "Knowledge Intelligence: enterprise RAG platform — backend"
-readme = "../README.md"
+readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.11"
 authors = [{ name = "Safiullah Rahu" }]
