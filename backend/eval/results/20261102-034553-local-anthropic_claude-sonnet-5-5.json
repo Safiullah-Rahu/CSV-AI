@@ -1,0 +1,74 @@
+{
+  "embedder": {
+    "provider": "local",
+    "model": "BAAI/bge-small-en-v1.5"
+  },
+  "llm": "anthropic:claude-sonnet-5-5",
+  "k": 5,
+  "documents": 7,
+  "ingest_seconds": 2.96,
+  "configs": {
+    "hybrid+rerank (default)": {
+      "summary": {
+        "precision@5": 0.2,
+        "recall@5": 1.0,
+        "mrr": 1.0,
+        "ndcg@5": 1.0,
+        "hit@5": 1.0,
+        "answer_relevance": 1.0,
+        "citation_correctness": 1.0,
+        "faithfulness": 1.0,
+        "false_refusals": 0.0,
+        "refusal_accuracy_unanswerable": null,
+        "retrieval_ms_avg": 77.75,
+        "retrieval_ms_p95": 66.5,
+        "generation_ms_avg": 1761.05,
+        "questions": 2,
+        "tokens_in_total": 1820,
+        "tokens_out_total": 109
+      },
+      "rows": [
+        {
+          "q": "How many days of paid annual leave do full-time employees get?",
+          "mode": "llm",
+          "answerable": true,
+          "retrieval_ms": 89.0,
+          "generation_ms": 1798.1,
+          "answer": "Full-time employees receive 26 days of paid annual leave per calendar year, plus public holidays [S1].\n\nUp to 5 unused days may be carried over to the next year and must be used by 31 March [S1].",
+          "tokens_in": 920,
+          "tokens_out": 69,
+          "precision": 0.2,
+          "recall": 1.0,
+          "mrr": 1.0,
+          "ndcg": 1.0,
+          "hit": 1.0,
+          "answer_relevance": 1.0,
+          "citation_correct": 1.0,
+          "cited_any": 1.0,
+          "refused": 0.0,
+          "faithfulness": 1.0
+        },
+        {
+          "q": "How many unused leave days can be carried over?",
+          "mode": "llm",
+          "answerable": true,
+          "retrieval_ms": 66.5,
+          "generation_ms": 1724.0,
+          "answer": "Up to 5 unused days of annual leave can be carried over to the next year, and they must be used by 31 March [S1].",
+          "tokens_in": 900,
+          "tokens_out": 40,
+          "precision": 0.2,
+          "recall": 1.0,
+          "mrr": 1.0,
+          "ndcg": 1.0,
+          "hit": 1.0,
+          "answer_relevance": 1.0,
+          "citation_correct": 1.0,
+          "cited_any": 1.0,
+          "refused": 0.0,
+          "faithfulness": 1.0
+        }
+      ]
+    }
+  }
+}

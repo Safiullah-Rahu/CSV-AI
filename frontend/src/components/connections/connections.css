@@ -1,0 +1,492 @@
+/* ----------------------------------------------------------------------------
+   Connections command center: map-only styles.
+   Everything is derived from the design tokens in globals.css (Porcelain /
+   Graphite + iris accent), so the canvas follows the theme and org branding.
+   ------------------------------------------------------------------------- */
+
+.cx-root {
+  --cx-stage: var(--surface-2);
+  --cx-stage-alpha: 0.62;
+  /* the stage colour (surface-2 at 62% over bg), nearly opaque, so labels sit on the canvas, not on boxes */
+  --cx-plate: color-mix(in srgb, color-mix(in srgb, hsl(var(--surface-2)) 62%, hsl(var(--bg))) 90%, transparent);
+  --cx-glow: 0.34;
+  --cx-dot: hsl(var(--fg) / 0.13);
+  --cx-grid: hsl(var(--fg) / 0.045);
+}
+.dark .cx-root {
+  --cx-stage: var(--frame);
+  --cx-stage-alpha: 1;
+  --cx-plate: hsl(var(--frame) / 0.86);
+  --cx-glow: 0.62;
+  --cx-dot: hsl(var(--fg) / 0.1);
+  --cx-grid: hsl(var(--fg) / 0.035);
+}
+.cx-root:fullscreen {
+  background: hsl(var(--bg));
+}
+
+/* ------------------------------------------------------------------ stage */
+.cx-stage {
+  background: hsl(var(--cx-stage) / var(--cx-stage-alpha));
+}
+.cx-backdrop {
+  background:
+    radial-gradient(48% 42% at 50% 50%, hsl(var(--accent) / 0.07), transparent 72%),
+    radial-gradient(130% 100% at 50% 50%, transparent 58%, hsl(var(--shadow) / 0.05) 100%);
+}
+.dark .cx-backdrop {
+  background:
+    radial-gradient(50% 45% at 50% 50%, hsl(var(--accent) / 0.1), transparent 72%),
+    radial-gradient(130% 100% at 50% 50%, transparent 52%, hsl(0 0% 0% / 0.5) 100%);
+}
+/* Fade the dot / line grid toward the edges: reads as a lit instrument panel. */
+.cx-map .react-flow__background {
+  -webkit-mask-image: radial-gradient(ellipse 78% 74% at 50% 50%, #000 35%, transparent 100%);
+  mask-image: radial-gradient(ellipse 78% 74% at 50% 50%, #000 35%, transparent 100%);
+}
+.cx-map .react-flow__pane {
+  cursor: grab;
+}
+.cx-map .react-flow__pane.dragging {
+  cursor: grabbing;
+}
+.cx-map .react-flow__handle {
+  width: 1px;
+  height: 1px;
+  min-width: 0;
+  min-height: 0;
+  border: 0;
+  background: transparent;
+  opacity: 0;
+}
+.cx-map .react-flow__node:focus-visible {
+  outline: none;
+}
+.cx-map .react-flow__node:focus-visible .cx-tile {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 7px;
+}
+
+/* ------------------------------------------------------------------ glass */
+.cx-glass {
+  background: hsl(var(--surface) / 0.8);
+  border: 1px solid hsl(var(--border) / 0.95);
+  box-shadow:
+    inset 0 1px 0 hsl(var(--highlight)),
+    0 1px 2px hsl(var(--shadow) / 0.05),
+    0 14px 34px -14px hsl(var(--shadow) / 0.22);
+  -webkit-backdrop-filter: blur(16px) saturate(1.35);
+  backdrop-filter: blur(16px) saturate(1.35);
+}
+.dark .cx-glass {
+  background: hsl(var(--surface) / 0.74);
+  border-color: hsl(var(--border-strong) / 0.55);
+  box-shadow:
+    inset 0 1px 0 hsl(0 0% 100% / 0.05),
+    0 18px 44px -18px hsl(0 0% 0% / 0.75);
+}
+.cx-glass-solid,
+.dark .cx-glass-solid {
+  background: hsl(var(--surface) / 0.97);
+}
+
+.cx-noscroll {
+  scrollbar-width: none;
+}
+.cx-noscroll::-webkit-scrollbar {
+  display: none;
+}
+.cx-fade-x {
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
+  mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
+}
+
+/* ------------------------------------------------------------------ nodes */
+.cx-node {
+  --tone: var(--subtle);
+  position: relative;
+  display: flex;
+  width: 148px; /* NODE_W in layout.ts */
+  flex-direction: column;
+  align-items: center;
+  transition: opacity 300ms ease, filter 300ms ease;
+}
+.cx-node.is-dimmed {
+  opacity: 0.16;
+  filter: grayscale(1);
+}
+.cx-node.is-new {
+  animation: cx-node-in 640ms cubic-bezier(0.2, 0.8, 0.2, 1.2) both;
+}
+.cx-tile-wrap {
+  position: relative;
+  width: 46px;
+  height: 46px;
+}
+.cx-node--lg .cx-tile-wrap {
+  width: 58px;
+  height: 58px;
+}
+
+.cx-tile {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  border-radius: 13px;
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+.cx-tile svg {
+  width: 19px;
+  height: 19px;
+  stroke-width: 1.75;
+}
+.cx-node--lg .cx-tile {
+  border-radius: 17px;
+}
+.cx-node--lg .cx-tile svg {
+  width: 24px;
+  height: 24px;
+}
+.react-flow__node:hover .cx-tile {
+  transform: translateY(-1px);
+}
+
+.cx-tile--source {
+  background: hsl(var(--surface));
+  color: hsl(var(--fg));
+  box-shadow: inset 0 0 0 1px hsl(var(--border-strong)), inset 0 1px 0 hsl(var(--highlight)), 0 1px 2px hsl(var(--shadow) / 0.06), 0 6px 14px -8px hsl(var(--shadow) / 0.25);
+}
+.cx-tile--process {
+  background: hsl(var(--surface-2));
+  color: hsl(var(--muted));
+  box-shadow: inset 0 0 0 1px hsl(var(--border-strong)), inset 0 1px 0 hsl(var(--highlight)), 0 6px 14px -8px hsl(var(--shadow) / 0.2);
+}
+.cx-tile--knowledge {
+  background: linear-gradient(hsl(var(--accent) / 0.1), hsl(var(--accent) / 0.1)), hsl(var(--surface));
+  color: hsl(var(--accent));
+  box-shadow: inset 0 0 0 1px hsl(var(--accent) / 0.3), inset 0 1px 0 hsl(var(--highlight)), 0 6px 16px -8px hsl(var(--accent) / 0.35);
+}
+.cx-tile--intelligence {
+  background: linear-gradient(180deg, hsl(0 0% 100% / 0.2), transparent 62%), hsl(var(--accent));
+  color: hsl(var(--accent-fg));
+  box-shadow: inset 0 0 0 1px hsl(var(--accent)), inset 0 1px 0 hsl(0 0% 100% / 0.25), 0 8px 20px -8px hsl(var(--accent) / 0.6);
+}
+.cx-tile--org {
+  background: linear-gradient(180deg, hsl(0 0% 100% / 0.14), transparent 60%), hsl(var(--fg));
+  color: hsl(var(--bg));
+  box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.18), 0 10px 26px -10px hsl(var(--shadow) / 0.55);
+}
+
+/* Status ring: hugs the tile, glows in the status tone. */
+.cx-ring {
+  position: absolute;
+  inset: -5px;
+  border-radius: 17px;
+  border: 1.5px solid hsl(var(--tone) / 0.9);
+  box-shadow: 0 0 0 3px hsl(var(--tone) / 0.08), 0 0 16px -3px hsl(var(--tone) / var(--cx-glow));
+  pointer-events: none;
+  transition: box-shadow 200ms ease, border-color 200ms ease;
+}
+.cx-node--lg .cx-ring {
+  inset: -6px;
+  border-radius: 22px;
+}
+.react-flow__node:hover .cx-ring {
+  box-shadow: 0 0 0 4px hsl(var(--tone) / 0.12), 0 0 22px -2px hsl(var(--tone) / calc(var(--cx-glow) + 0.15));
+}
+/* Healthy is the common case: present but quiet, so problems stand out. */
+.cx-ring[data-status="healthy"] {
+  border-color: hsl(var(--tone) / 0.62);
+  box-shadow: 0 0 0 3px hsl(var(--tone) / 0.06), 0 0 14px -4px hsl(var(--tone) / var(--cx-glow));
+}
+.cx-ring[data-status="syncing"] {
+  border-color: hsl(var(--tone) / 0.3);
+}
+.cx-ring[data-status="paused"] {
+  border-style: dashed;
+  box-shadow: none;
+}
+.cx-ring[data-status="idle"],
+.cx-ring[data-status="disabled"] {
+  border-color: hsl(var(--border-strong));
+  border-style: dashed;
+  box-shadow: none;
+}
+.cx-ring[data-status="disabled"] {
+  border-style: dotted;
+}
+
+/* Syncing: an arc sweeps around the ring. */
+@property --cx-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+.cx-sweep {
+  position: absolute;
+  inset: -5px;
+  border-radius: 17px;
+  padding: 1.5px;
+  background: conic-gradient(from var(--cx-angle), transparent 0deg 200deg, hsl(var(--tone)) 340deg, transparent 360deg);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  animation: cx-sweep 1.5s linear infinite;
+}
+.cx-node--lg .cx-sweep {
+  inset: -6px;
+  border-radius: 22px;
+}
+
+/* Failed: the ring breathes so a problem is seen before it is read. */
+.cx-pulse {
+  position: absolute;
+  inset: -5px;
+  border-radius: 17px;
+  border: 1.5px solid hsl(var(--tone));
+  pointer-events: none;
+  animation: cx-pulse 2.4s cubic-bezier(0.2, 0.6, 0.4, 1) infinite;
+}
+
+/* Organization: an iris aura and a slow sonar ping (the map's hub). */
+.cx-aura {
+  position: absolute;
+  inset: -54px;
+  border-radius: 999px;
+  background: radial-gradient(circle, hsl(var(--accent) / 0.16), transparent 68%);
+  pointer-events: none;
+}
+.dark .cx-aura {
+  background: radial-gradient(circle, hsl(var(--accent) / 0.22), transparent 68%);
+}
+.cx-ping {
+  position: absolute;
+  inset: -6px;
+  border-radius: 999px;
+  border: 1px solid hsl(var(--accent) / 0.55);
+  pointer-events: none;
+  animation: cx-ping 4.2s cubic-bezier(0.1, 0.6, 0.3, 1) infinite;
+}
+.cx-ping + .cx-ping {
+  animation-delay: 2.1s;
+}
+
+/* Live event on a node: a one-shot burst in the event's tone. */
+.cx-flash {
+  position: absolute;
+  inset: -5px;
+  border-radius: 17px;
+  background: hsl(var(--flash) / 0.35);
+  box-shadow: 0 0 24px 4px hsl(var(--flash) / 0.45);
+  pointer-events: none;
+  animation: cx-flash 1.25s ease-out 2 both;
+}
+
+.cx-badge {
+  position: absolute;
+  top: -9px;
+  right: -9px;
+  z-index: 2;
+  display: grid;
+  width: 17px;
+  height: 17px;
+  place-items: center;
+  border-radius: 999px;
+  background: hsl(var(--tone));
+  color: hsl(var(--surface));
+  box-shadow: 0 0 0 2px hsl(var(--cx-stage)), 0 0 12px hsl(var(--tone) / 0.5);
+  font: 700 10px/1 var(--font-mono), ui-monospace, monospace;
+}
+
+/* Selection: an iris outline outside the status ring. */
+.cx-node.is-selected .cx-tile-wrap::after {
+  content: "";
+  position: absolute;
+  inset: -10px;
+  border-radius: 21px;
+  border: 1.5px solid hsl(var(--accent));
+  box-shadow: 0 0 0 4px hsl(var(--accent) / 0.14), 0 0 26px -4px hsl(var(--accent) / 0.6);
+  pointer-events: none;
+}
+.cx-node--lg.is-selected .cx-tile-wrap::after {
+  inset: -11px;
+  border-radius: 26px;
+}
+
+.cx-label {
+  margin-top: 11px;
+  max-width: 148px;
+  border-radius: 7px;
+  background: var(--cx-plate);
+  padding: 2px 7px 3px;
+  text-align: center;
+  transition: opacity 180ms ease;
+}
+.cx-label-name {
+  overflow: hidden;
+  color: hsl(var(--fg));
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.012em;
+  line-height: 17px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cx-node.is-selected .cx-label-name {
+  color: hsl(var(--accent));
+}
+.cx-label-sub {
+  overflow: hidden;
+  color: hsl(var(--subtle));
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 10.5px;
+  letter-spacing: -0.01em;
+  line-height: 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: opacity 180ms ease;
+}
+
+/* Top-to-bottom layout is used on phones and portrait canvases, where the map
+   sits at a lower zoom: set labels a size up so they stay readable. */
+.cx-node.is-tb .cx-label-name {
+  font-size: 15px;
+  line-height: 19px;
+}
+.cx-node.is-tb .cx-label-sub {
+  font-size: 12px;
+  line-height: 15px;
+}
+
+/* -------------------------------------------------------------- data flow */
+.cx-rail-dot {
+  position: absolute;
+  top: -2px;
+  height: 5px;
+  width: 5px;
+  border-radius: 999px;
+  background: hsl(var(--accent));
+  box-shadow: 0 0 0 3px hsl(var(--accent) / 0.15), 0 0 10px hsl(var(--accent) / 0.6);
+  animation: cx-rail 6.5s linear infinite;
+}
+.cx-rail-dot-v {
+  position: absolute;
+  left: -2px;
+  height: 5px;
+  width: 5px;
+  border-radius: 999px;
+  background: hsl(var(--accent));
+  box-shadow: 0 0 0 3px hsl(var(--accent) / 0.15), 0 0 10px hsl(var(--accent) / 0.6);
+  animation: cx-rail-v 2.4s linear infinite;
+}
+
+/* ---------------------------------------------------------------- loader */
+.cx-loader {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  border: 1px solid hsl(var(--border-strong));
+}
+.cx-loader::before {
+  content: "";
+  position: absolute;
+  inset: 10px;
+  border-radius: 999px;
+  border: 1px dashed hsl(var(--border-strong));
+}
+.cx-loader::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 999px;
+  background: conic-gradient(from var(--cx-angle), transparent 0deg 270deg, hsl(var(--accent) / 0.55) 360deg);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1.5px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1.5px));
+  animation: cx-sweep 1.2s linear infinite;
+}
+
+/* ------------------------------------------------------------- keyframes */
+@keyframes cx-sweep {
+  to {
+    --cx-angle: 360deg;
+  }
+}
+@keyframes cx-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.75;
+  }
+  100% {
+    transform: scale(1.32);
+    opacity: 0;
+  }
+}
+@keyframes cx-ping {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(3.1);
+    opacity: 0;
+  }
+}
+@keyframes cx-flash {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.95;
+  }
+  100% {
+    transform: scale(1.9);
+    opacity: 0;
+  }
+}
+@keyframes cx-node-in {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes cx-rail {
+  0% {
+    left: 0%;
+    opacity: 0;
+  }
+  6% {
+    opacity: 1;
+  }
+  94% {
+    opacity: 1;
+  }
+  100% {
+    left: 100%;
+    opacity: 0;
+  }
+}
+@keyframes cx-rail-v {
+  0% {
+    top: 0%;
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    top: 100%;
+    opacity: 0;
+  }
+}

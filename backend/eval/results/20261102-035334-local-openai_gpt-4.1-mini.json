@@ -1,0 +1,74 @@
+{
+  "embedder": {
+    "provider": "local",
+    "model": "BAAI/bge-small-en-v1.5"
+  },
+  "llm": "openai:gpt-4.1-mini",
+  "k": 5,
+  "documents": 7,
+  "ingest_seconds": 6.7,
+  "configs": {
+    "hybrid+rerank (default)": {
+      "summary": {
+        "precision@5": 0.2,
+        "recall@5": 1.0,
+        "mrr": 1.0,
+        "ndcg@5": 1.0,
+        "hit@5": 1.0,
+        "answer_relevance": 1.0,
+        "citation_correctness": 1.0,
+        "faithfulness": 1.0,
+        "false_refusals": 0.0,
+        "refusal_accuracy_unanswerable": null,
+        "retrieval_ms_avg": 54.55,
+        "retrieval_ms_p95": 46.2,
+        "generation_ms_avg": 1798.45,
+        "questions": 2,
+        "tokens_in_total": 1168,
+        "tokens_out_total": 50
+      },
+      "rows": [
+        {
+          "q": "How many days of paid annual leave do full-time employees get?",
+          "mode": "llm",
+          "answerable": true,
+          "retrieval_ms": 62.9,
+          "generation_ms": 2223.2,
+          "answer": "Full-time employees receive 26 days of paid annual leave per calendar year, plus public holidays [S1].",
+          "tokens_in": 589,
+          "tokens_out": 22,
+          "precision": 0.2,
+          "recall": 1.0,
+          "mrr": 1.0,
+          "ndcg": 1.0,
+          "hit": 1.0,
+          "answer_relevance": 1.0,
+          "citation_correct": 1.0,
+          "cited_any": 1.0,
+          "refused": 0.0,
+          "faithfulness": 1.0
+        },
+        {
+          "q": "How many unused leave days can be carried over?",
+          "mode": "llm",
+          "answerable": true,
+          "retrieval_ms": 46.2,
+          "generation_ms": 1373.7,
+          "answer": "Up to 5 unused annual leave days may be carried over to the next year and must be used by 31 March [S1].",
+          "tokens_in": 579,
+          "tokens_out": 28,
+          "precision": 0.2,
+          "recall": 1.0,
+          "mrr": 1.0,
+          "ndcg": 1.0,
+          "hit": 1.0,
+          "answer_relevance": 1.0,
+          "citation_correct": 1.0,
+          "cited_any": 1.0,
+          "refused": 0.0,
+          "faithfulness": 1.0
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,21 @@
+# TLS is automatic for real domains (Let's Encrypt); "localhost" uses a local CA.
+{$DOMAIN} {
+	encode gzip
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		-Server
+	}
+	# API, OpenAPI and streaming endpoints go straight to FastAPI; flush immediately for SSE.
+	@api path /api/* /docs /redoc
+	handle @api {
+		reverse_proxy api:8000 {
+			flush_interval -1
+		}
+	}
+	handle {
+		reverse_proxy web:3000
+	}
+	request_body {
+		max_size 110MB
+	}
+}

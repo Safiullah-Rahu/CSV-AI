@@ -1,0 +1,2 @@
+# Runtime dependencies are declared in pyproject.toml; this file installs them.
+-e .

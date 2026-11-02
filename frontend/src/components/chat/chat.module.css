@@ -1,0 +1,62 @@
+/* Chat-only motion. Global prefers-reduced-motion rules (globals.css) still apply. */
+
+/* Accent light sweeping across muted text: the "working" stage label. */
+.shimmerText {
+  background-image: linear-gradient(
+    90deg,
+    hsl(var(--muted)) 0%,
+    hsl(var(--muted)) 38%,
+    hsl(var(--accent)) 50%,
+    hsl(var(--muted)) 62%,
+    hsl(var(--muted)) 100%
+  );
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: sweep 1.9s linear infinite;
+}
+
+@keyframes sweep {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: 0% 0;
+  }
+}
+
+/* Satellite dot of the product mark orbiting while an answer is in flight. */
+.orbit {
+  transform-box: view-box;
+  transform-origin: 50% 50%;
+  animation: orbit 2.6s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+}
+
+@keyframes orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Soft block caret at the end of streaming text. */
+.caret {
+  display: inline-block;
+  width: 0.5em;
+  height: 1.05em;
+  margin-left: 2px;
+  border-radius: 2px;
+  vertical-align: -0.17em;
+  background: hsl(var(--accent) / 0.75);
+  animation: caret 1.05s ease-in-out infinite;
+}
+
+@keyframes caret {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.15;
+  }
+}

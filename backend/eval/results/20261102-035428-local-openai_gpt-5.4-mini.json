@@ -1,0 +1,54 @@
+{
+  "embedder": {
+    "provider": "local",
+    "model": "BAAI/bge-small-en-v1.5"
+  },
+  "llm": "openai:gpt-5.4-mini",
+  "k": 5,
+  "documents": 7,
+  "ingest_seconds": 3.91,
+  "configs": {
+    "hybrid+rerank (default)": {
+      "summary": {
+        "precision@5": 0.2,
+        "recall@5": 1.0,
+        "mrr": 1.0,
+        "ndcg@5": 1.0,
+        "hit@5": 1.0,
+        "answer_relevance": 1.0,
+        "citation_correctness": 1.0,
+        "faithfulness": 1.0,
+        "false_refusals": 0.0,
+        "refusal_accuracy_unanswerable": null,
+        "retrieval_ms_avg": 60.3,
+        "retrieval_ms_p95": 60.3,
+        "generation_ms_avg": 0.0,
+        "questions": 1,
+        "tokens_in_total": 0,
+        "tokens_out_total": 76
+      },
+      "rows": [
+        {
+          "q": "How many days of paid annual leave do full-time employees get?",
+          "mode": "extractive",
+          "answerable": true,
+          "retrieval_ms": 60.3,
+          "generation_ms": 0,
+          "answer": "Here is what the authorized sources say:\n\n- Full-time employees receive 26 days of paid annual leave per calendar year, plus public holidays [S1].\n\n_The language model failed (openai stream rejected (HTTP 400): Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_comple); this is an extractive answer from the sources._",
+          "tokens_in": 0,
+          "tokens_out": 76,
+          "precision": 0.2,
+          "recall": 1.0,
+          "mrr": 1.0,
+          "ndcg": 1.0,
+          "hit": 1.0,
+          "answer_relevance": 1.0,
+          "citation_correct": 1.0,
+          "cited_any": 1.0,
+          "refused": 0.0,
+          "faithfulness": 1.0
+        }
+      ]
+    }
+  }
+}
